@@ -68,27 +68,10 @@
 
     lamp  = obniz.wired("USB" , {gnd:8, vcc:11} );
     lamp.off();
-    var i2c = obniz.getFreeI2C();
-    obniz.io1.output(true);
-    obniz.io0.output(false);
-    i2c.start({mode:"master", sda:2, scl:3, clock:100000});
-    await obniz.wait(160);
-    async function getDataWait(){
-      i2c.write(0x0A, [0x4C]);
-      //await obniz.wait(160);
-      let raw = await i2c.readWait(0x0A, 35);
-
-      let data = [];
-
-      for(let i=0; i<16; i++){
-        data[i] = ((raw[i*2+2]+(raw[i*2+3]<<8))*0.1).toFixed(1);
-      }
-      return data;
-
-    }
+    var thermoSensor = obniz.wired('D6T44L', { gnd: 0, vcc: 1, sda: 2, scl: 3 });
 
     obniz.repeat(async function(){
-      temperatures = ( await getDataWait());
+      temperatures = ( await thermoSensor.getAllPixWait());
     },10)
   }
 
