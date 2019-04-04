@@ -66,14 +66,14 @@
   var lamp;
   obniz.onconnect = async function () {
 
-    lamp  = obniz.wired("USB" , {gnd:8, vcc:11} );
+    lamp = obniz.wired("USB", {gnd: 8, vcc: 11});
     lamp.off();
-    var thermoSensor = obniz.wired('D6T44L', { gnd: 0, vcc: 1, sda: 2, scl: 3 });
+    var thermoSensor = obniz.wired('D6T44L', {gnd: 0, vcc: 1, sda: 2, scl: 3});
 
-    obniz.repeat(async function(){
-      temperatures = ( await thermoSensor.getAllPixWait());
-    },10)
-  }
+    obniz.repeat(async function () {
+      temperatures = (await thermoSensor.getAllPixWait());
+    }, 10)
+  };
 
   let utils = new Utils('errorMessage');
 
@@ -143,6 +143,7 @@
     startAndStop.innerText = 'Stop';
     start();
   }
+
   function onVideoStopped() {
     streaming = false;
     canvasContext.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
@@ -190,35 +191,35 @@
           let face = faces.get(i);
           let point1 = new cv.Point(face.x, face.y);
           let point2 = new cv.Point(face.x + face.width, face.y + face.height);
-          cv.rectangle(dst, point1, point2, [255, 0, 0, 255],4);
-          if(temperatures.length == 16){
-            let index =   Math.floor((face.x + face.width/2) / (video.width/4))
-                +  Math.floor((face.y + face.height/2) / (video.height/4) )*4;
+          cv.rectangle(dst, point1, point2, [255, 0, 0, 255], 4);
+          if (temperatures.length === 16) {
+            let index = Math.floor((face.x + face.width / 2) / (video.width / 4))
+                + Math.floor((face.y + face.height / 2) / (video.height / 4)) * 4;
             //console.log("face detect["+index+"] : " + temperatures[index]);
             $("#dispTemp").text(temperatures[index]);
-            if(temperatures[index] > 29){
+            if (temperatures[index] > 29) {
               find = true;
             }
           }
         }
-        if(lamp != undefined && find === true){
+        if (lamp !== undefined && find === true) {
           lamp.on();
-        }else{
+        } else {
           lamp.off();
         }
 
         let max = 35;
         let min = 20;
-        for(let i=0;i<16;i++){
-          let balance = (temperatures[i]-min) / (max -min);
-          balance = Math.max(0,Math.min(1,balance));
+        for (let i = 0; i < 16; i++) {
+          let balance = (temperatures[i] - min) / (max - min);
+          balance = Math.max(0, Math.min(1, balance));
 
-          let color = [balance * 255 , 0, (1-balance) * 255,255];
-          let x = video.width/4 * (i%4);
-          let y = video.height/4 * Math.floor(i/4);
-          cv.rectangle(overlay, new cv.Point(x, y), new cv.Point( x + video.width/4, y+ video.height/4), color,-1);
+          let color = [balance * 255, 0, (1 - balance) * 255, 255];
+          let x = video.width / 4 * (i % 4);
+          let y = video.height / 4 * Math.floor(i / 4);
+          cv.rectangle(overlay, new cv.Point(x, y), new cv.Point(x + video.width / 4, y + video.height / 4), color, -1);
         }
-        let alpha= 0.6;
+        let alpha = 0.6;
         cv.addWeighted(overlay, alpha, dst, 1 - alpha, 0, dst);
         cv.imshow('canvasOutput', dst);
 
@@ -228,7 +229,7 @@
       } catch (err) {
         console.error(err);
       }
-    };
+    }
 
     // schedule the first one.
     setTimeout(processVideo, 0);
