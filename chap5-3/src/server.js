@@ -17,14 +17,6 @@ app.use(serveStatic(`${__dirname}/public`));
 
 let glasses = new Glasses("25800064");
 
-glasses.changeMode(glasses.MODE_TYPES.GRADATION);
-glasses.contrast =  0.05;
-setTimeout(()=>{
-  glasses.changeMode(glasses.MODE_TYPES.GRADATION);
-  glasses.contrast =  0.05;
-
-},3000)
-/*
 app.ws('/', (ws, req) => {
   console.log("connection " + connects.length);
   connects.push(ws);
@@ -83,4 +75,3 @@ app.listen(app.get('port'), () => {
   console.log('Server listening on port %s', app.get('port'));
 });
 
-*/
