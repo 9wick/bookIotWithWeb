@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>DetectDog</title>
+  <script src="https://unpkg.com/obniz@2.0.2/obniz.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1"> </script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@1.0.0"> </script>
+
+</head>
+<body>
+
+<div id="obniz-debug"></div>
+
+<div>
+  <div class="control">
+    <button id="start">Start</button>
+  </div>
+</div>
+
+<div style="display:flex;">
+  <video id="videoInput" autoplay playsinline width=320 height=240 style="border:1px solid;width:320px;margin-right:10px"></video>
+  <div id="output"></div>
+</div>
+
+<script>
+
+  let videoInput = document.getElementById('videoInput');
+  let startButton = document.getElementById('start');
+  let outputDiv = document.getElementById('output');
+  let usb;
+
+  let obniz = new Obniz("XXXXXXXX");
+  obniz.onconnect = () => {
+    usb = obniz.wired("USB", {gnd: 3, vcc: 0});
+    usb.off();
+  };
+
+
+  startButton.addEventListener('click', () => {
+    const medias = {
+      audio: false, video: {
+        facingMode: "user"
+      }
+    };
+
+    navigator.getUserMedia(medias, successCallback, errorCallback);
+  });
+
+  function successCallback(stream) {
+    videoInput.srcObject = stream;
+    loop();
+  }
+
+  function errorCallback(err) {
+    console.error('mediaDevice.getUserMedia() error:', err);
+  }
+
+  async function loop() {
+    outputDiv.innerHTML = "model loading...";
+    const model = await mobilenet.load();
+    async function  processVideo() {
+      try {
+        await checkAndDisplay(model,'husky');
+        setTimeout(processVideo, 0);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    setTimeout(processVideo, 0);
+  }
+
+  async function checkAndDisplay(model,keywoard){
+    const predictions = await model.classify(videoInput);
+    const findDog = predictions.filter(e=>e.className.indexOf(keywoard) >= 0).length > 0;
+    outputDiv.innerHTML = predictions.map(e=>`${e.className} ${(e.probability*100).toFixed(2)}%` ).join("<br/>");
+    motion(findDog) ;
+
+  }
+  function motion(output){
+    if(!usb)return;
+    if(output){
+      usb.on();
+    }else{
+      usb.off();
+    }
+  }
+</script>
+</body>
+</html>
+

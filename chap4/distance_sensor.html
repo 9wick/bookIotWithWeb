@@ -1,0 +1,20 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://unpkg.com/obniz@2.0.2/obniz.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="obniz-debug"></div>
+<script>
+  var obniz = new Obniz("XXXXXXXX");
+  obniz.onconnect = async function () {
+    var sensor = obniz.wired("GP2Y0A21YK0F", {vcc:0, gnd:1, signal:2});
+    while (1) {
+      var val = await sensor.getWait();
+      console.log("distance " + val + "mm");
+      await obniz.wait(1000);
+    }
+  }
+</script>
+</body>
+</html>
